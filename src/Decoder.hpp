@@ -27,16 +27,9 @@ public:
     m_offset = offset;
   }
 
-  /**
-   * Debug: Save the decoded maps and masks for inspection.
-   */
-  void saveDebugMaps(const std::string &output_folder);
-
 private:
   std::vector<Match> m_matches;
-  cv::Mat m_mask;     // Valid pixels
-  cv::Mat m_visual_H; // For debugging
-  cv::Mat m_visual_V; // For debugging
+  cv::Mat m_mask; // Valid pixels
 
   // Cropping parameters
   int m_crop = 0;

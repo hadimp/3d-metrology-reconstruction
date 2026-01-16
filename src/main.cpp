@@ -23,25 +23,20 @@ int main(int argc, char *argv[]) {
 
     if (fs::is_directory(input_path)) {
       // Mode 2: Real Decoding
-      std::cout << "Detected directory input. Running DECODER..." << std::endl;
+      std::cout << "Running Decoder..." << std::endl;
 
       Decoder decoder;
       // Configure cropping to remove background walls (matches Python defaults)
       decoder.setCrop(1600, -150);
       decoder.decodeSequence(input_path);
 
-      // Optional: Save debug maps
-      decoder.saveDebugMaps(".");
-
-      std::cout << "Feeding " << decoder.getMatches().size()
-                << " matches to Reconstructor..." << std::endl;
+      std::cout << "Reconstructing..." << std::endl;
       recon.processMatches(decoder.getMatches());
 
     } else {
-      // Mode 1: Mock CSV
-      std::cout << "Detected file input. Running MOCK CSV LOADER..."
+      std::cerr << "Error: Input must be a directory containing EXR images."
                 << std::endl;
-      recon.processMatches(input_path);
+      return 1;
     }
 
     std::string output_ply = "output.ply";

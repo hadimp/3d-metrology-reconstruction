@@ -1,9 +1,5 @@
 #include "Decoder.hpp"
-#include <algorithm>
-#include <filesystem>
 #include <iostream>
-
-namespace fs = std::filesystem;
 
 Decoder::Decoder() {}
 
@@ -17,7 +13,6 @@ unsigned int Decoder::grayToBinary(unsigned int num) {
 }
 
 void Decoder::decodeSequence(const std::string &folder_path) {
-  std::cout << "Decoding sequence from: " << folder_path << std::endl;
   m_matches.clear();
 
   // 1. Load Reference Images
@@ -46,15 +41,19 @@ void Decoder::decodeSequence(const std::string &folder_path) {
     cv::cvtColor(img_blank, img_blank, cv::COLOR_BGR2GRAY);
 
   // Compute basic Shadow Mask: (White - Blank) > Threshold
-  // Compute basic Shadow Mask: (White - Blank) > Threshold
   cv::Mat diff = img_white - img_blank;
-  // Simple global threshold for now. Python uses Gaussian + Otsu.
-  // We'll use a hardcoded safe value of 0.02 (assuming 0.0-1.0 range) or 10.0
-  // (if 0-255?). EXR is usually linear float. Let's assume > 0.05 is valid
-  // signal.
+
+  // Simple global threshold (Unfiltered)
   double signal_threshold = 0.05;
   cv::threshold(diff, m_mask, signal_threshold, 1.0, cv::THRESH_BINARY);
   m_mask.convertTo(m_mask, CV_8U); // Convert to 8-bit boolean mask
+
+  // 4. Morphological Erosion
+  // Python: generate_binary_structure(2, 1) -> equivalent to 3x3 cross kernel
+  // cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3))
+  cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
+  cv::morphologyEx(m_mask, m_mask, cv::MORPH_ERODE, element, cv::Point(-1, -1),
+                   6); // 6 iterations
 
   // Apply Cropping (if configured)
   if (m_crop > 0) {
@@ -67,8 +66,6 @@ void Decoder::decodeSequence(const std::string &folder_path) {
     if (right_limit < cols) {
       m_mask.colRange(right_limit, cols) = 0;
     }
-    std::cout << "Applied cropping: Left " << m_crop << "px, Right limit "
-              << right_limit << "px" << std::endl;
   }
 
   // 2. Decode Patterns
@@ -126,14 +123,11 @@ void Decoder::decodeSequence(const std::string &folder_path) {
       }
       bit++;
     }
-    std::cout << "Decoded " << bit << " bits." << std::endl;
   };
 
-  std::cout << "Decoding Vertical Patterns..." << std::endl;
   // Vertical images: 02..23 (Indices 2 to 24 in Python slice)
   decode_bits(2, 24, code_V);
 
-  std::cout << "Decoding Horizontal Patterns..." << std::endl;
   // Horizontal images: 24..45 (Indices 24 to 46 in Python slice)
   decode_bits(24, 46, code_H);
 
@@ -141,15 +135,11 @@ void Decoder::decodeSequence(const std::string &folder_path) {
   int valid_matches = 0;
 
   // Debug output matrices
-  m_visual_H = cv::Mat::zeros(rows, cols, CV_32F);
-  m_visual_V = cv::Mat::zeros(rows, cols, CV_32F);
 
   for (int r = 0; r < rows; ++r) {
     int *row_v = code_V.ptr<int>(r);
     int *row_h = code_H.ptr<int>(r);
     uint8_t *mask_row = m_mask.ptr<uint8_t>(r);
-    float *viz_h = m_visual_H.ptr<float>(r);
-    float *viz_v = m_visual_V.ptr<float>(r);
 
     for (int c = 0; c < cols; ++c) {
       if (mask_row[c]) {
@@ -184,27 +174,8 @@ void Decoder::decodeSequence(const std::string &folder_path) {
 
           m_matches.push_back(m);
           valid_matches++;
-
-          viz_v[c] = (float)bin_v;
-          viz_h[c] = (float)bin_h;
         }
       }
     }
   }
-
-  std::cout << "Found " << valid_matches << " valid matches." << std::endl;
-}
-
-void Decoder::saveDebugMaps(const std::string &output_folder) {
-  if (m_visual_H.empty())
-    return;
-
-  // Normalize for visualization (Projector typically 1920x1080)
-  // Map 0..1920 to 0..1 for EXR saving or 0..255 for PNG
-  cv::Mat viz_h_norm, viz_v_norm;
-
-  // Save as EXR for precision inspection
-  cv::imwrite(output_folder + "/debug_proj_row.exr", m_visual_H);
-  cv::imwrite(output_folder + "/debug_proj_col.exr", m_visual_V);
-  cv::imwrite(output_folder + "/debug_mask.png", m_mask * 255);
 }

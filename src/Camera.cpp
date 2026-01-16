@@ -30,14 +30,6 @@ Camera::Camera(const std::string &calibration_file) {
     }
   }
 
-  // 3. Parse Extrinsics (Basis and Origin)
-  // "basis" is 3x3 (Rotation from Camera to World)
-  // "origin" is 3x1 (Translation)
-  if (data.contains("extrinsic")) {
-    // Some files might handle it differently, checking structure:
-    // Assuming root keys 'basis' and 'origin' based on user's data description
-  }
-
   // NOTE: Based on previous file reads, keys are at root: "basis", "origin"
   if (data.contains("basis")) {
     for (int r = 0; r < 3; ++r) {

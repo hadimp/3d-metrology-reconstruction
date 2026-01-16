@@ -1,3 +1,24 @@
 build/
 .DS_Store
 compile_commands.json
+
+# Build Artifacts (In-Source)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+_deps/
+
+# Executables
+simple_recon
+test_exr
+
+# Output Files
+*.ply
+*.html
+*.png
+*.exr
+
+# Python
+venv/
+__pycache__/

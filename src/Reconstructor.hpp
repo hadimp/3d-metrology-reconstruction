@@ -10,9 +10,6 @@ class Reconstructor {
 public:
   Reconstructor(const std::string &cam_json, const std::string &proj_json);
 
-  // Reads a CSV file where each line is: cam_u, cam_v, proj_u, proj_v
-  void processMatches(const std::string &csv_path);
-
   // Process a list of matches directly
   void processMatches(const std::vector<Match> &matches);
 
