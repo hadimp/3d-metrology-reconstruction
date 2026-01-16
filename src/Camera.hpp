@@ -21,7 +21,7 @@ public:
 
   // Getters for debugging
   cv::Mat getCameraMatrix() const { return m_cameraMatrix; }
-  Eigen::Vector3d getPosition() const { return m_origin; }
+  Eigen::Vector3d getPosition() const;
 
 private:
   // Intrinsics (OpenCV)

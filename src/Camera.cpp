@@ -83,8 +83,17 @@ Eigen::Vector3d Camera::pixelToRay(double u, double v) {
 
   // Step 3: Transform to World Space
   // Ray_World = Rotation * Ray_Camera
-  Eigen::Vector3d ray_world = m_basis * ray_camera;
+  // Update: Trying Transpose() assuming basis is World-to-Cam
+  Eigen::Vector3d ray_world = m_basis.transpose() * ray_camera;
 
   // Step 4: Normalize direction
   return ray_world.normalized();
+}
+
+Eigen::Vector3d Camera::getPosition() const {
+  // Python reference implementation treats the 'origin' vector in JSON
+  // explicitly as the Camera Center (World Position).
+  // Previous logic assumed it was translation t (C = -R^T * t), which was
+  // incorrect for this dataset.
+  return m_origin;
 }

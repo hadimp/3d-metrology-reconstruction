@@ -19,8 +19,11 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(simple_recon src/main.cpp src/Camera.cpp)
+add_executable(simple_recon src/main.cpp src/Camera.cpp src/Intersection.cpp src/Reconstructor.cpp src/Decoder.cpp)
 target_link_libraries(simple_recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS})
+
+add_executable(test_exr src/test_exr.cpp)
+target_link_libraries(test_exr PRIVATE ${OpenCV_LIBS})
 
 # Create a compile_commands.json for editor tooling
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

@@ -1,34 +1,51 @@
-#include "Camera.hpp"
+#include "Reconstructor.hpp"
 #include <iostream>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+#include "Decoder.hpp"
+
 int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <path_to_calibration.json>"
+  // We now expect 3 arguments: camera, projector, and input (file or folder)
+  if (argc != 4) {
+    std::cerr << "Usage: " << argv[0]
+              << " <camera.json> <projector.json> <input_matches_or_folder>"
               << std::endl;
     return 1;
   }
 
-  std::string filename = argv[1];
+  std::string cam_file = argv[1];
+  std::string proj_file = argv[2];
+  std::string input_path = argv[3];
 
   try {
-    std::cout << "Loading Camera from: " << filename << std::endl;
-    Camera cam(filename);
+    Reconstructor recon(cam_file, proj_file);
 
-    std::cout << "Successfully loaded camera parameters." << std::endl;
-    std::cout << "Camera Origin: " << cam.getPosition().transpose()
-              << std::endl;
+    if (fs::is_directory(input_path)) {
+      // Mode 2: Real Decoding
+      std::cout << "Detected directory input. Running DECODER..." << std::endl;
 
-    // Test: Project center of image
-    // Assuming ~4000x3000 image, let's pick center
-    double u = 2000.0;
-    double v = 1500.0;
+      Decoder decoder;
+      // Configure cropping to remove background walls (matches Python defaults)
+      decoder.setCrop(1600, -150);
+      decoder.decodeSequence(input_path);
 
-    Eigen::Vector3d ray = cam.pixelToRay(u, v);
+      // Optional: Save debug maps
+      decoder.saveDebugMaps(".");
 
-    std::cout << "---------------------------------" << std::endl;
-    std::cout << "Test Projection at (" << u << ", " << v << "):" << std::endl;
-    std::cout << "Computed Ray Direction: " << ray.transpose() << std::endl;
-    std::cout << "---------------------------------" << std::endl;
+      std::cout << "Feeding " << decoder.getMatches().size()
+                << " matches to Reconstructor..." << std::endl;
+      recon.processMatches(decoder.getMatches());
+
+    } else {
+      // Mode 1: Mock CSV
+      std::cout << "Detected file input. Running MOCK CSV LOADER..."
+                << std::endl;
+      recon.processMatches(input_path);
+    }
+
+    std::string output_ply = "output.ply";
+    recon.saveToPLY(output_ply);
 
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
