@@ -6,10 +6,10 @@ namespace fs = std::filesystem;
 #include "Decoder.hpp"
 
 int main(int argc, char *argv[]) {
-  // We now expect 3 arguments: camera, projector, and input (file or folder)
-  if (argc != 4) {
+  // We now expect 3 or 4 arguments: camera, projector, input, [output]
+  if (argc < 4) {
     std::cerr << "Usage: " << argv[0]
-              << " <camera.json> <projector.json> <input_matches_or_folder>"
+              << " <camera.json> <projector.json> <input_folder> [output.ply]"
               << std::endl;
     return 1;
   }
@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
   std::string cam_file = argv[1];
   std::string proj_file = argv[2];
   std::string input_path = argv[3];
+  std::string output_ply = (argc >= 5) ? argv[4] : "output.ply";
 
   try {
     Reconstructor recon(cam_file, proj_file);
@@ -39,7 +40,6 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    std::string output_ply = "output.ply";
     recon.saveToPLY(output_ply);
 
   } catch (const std::exception &e) {
