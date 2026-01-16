@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find Eigen3
 find_package(Eigen3 REQUIRED NO_MODULE)
 
+# Find OpenCV
+list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/opencv")
+find_package(OpenCV REQUIRED)
+
 # Fetch nlohmann/json
 include(FetchContent)
 FetchContent_Declare(json 
@@ -15,8 +19,8 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(simple_recon src/main.cpp)
-target_link_libraries(simple_recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json)
+add_executable(simple_recon src/main.cpp src/Camera.cpp)
+target_link_libraries(simple_recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS})
 
 # Create a compile_commands.json for editor tooling
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
