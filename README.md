@@ -34,3 +34,7 @@ make
 - `<projector.json>`: Projector calibration data (treated as a camera).
 - `<input_folder>`: Directory containing the EXR pattern sequence.
 - `[output.ply]`: (Optional) Path to save the resulting point cloud.
+
+## Data Source
+
+The algorithms and test data are based on the [Scanner-Sim](https://geometryprocessing.github.io/scanner-sim/) project, which provides a comprehensive dataset and simulator for structured light 3D metrology.
