@@ -22,3 +22,4 @@ test_exr
 # Python
 venv/
 __pycache__/
+*.py
