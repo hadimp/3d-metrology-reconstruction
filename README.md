@@ -4,7 +4,7 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
 
 | 2D Pattern Projection (Input) | 3D Point Cloud (Output) |
 |:---:|:---:|
-| <img src="results/2d_input.png" height="300"> | <img src="results/3d_output.png" height="300"> |
+| <img src="media/2d_input.png" height="300"> | <img src="media/3d_output.png" height="300"> |
 
 ## Key Features
 
