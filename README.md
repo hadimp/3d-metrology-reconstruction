@@ -2,9 +2,13 @@
 
 A high-performance C++17 engine for 3D reconstruction using calibrated structured light patterns. This project focuses on high-precision metrology by triangulating correspondences between a camera and a projector.
 
+<div align="center">
+  
 | 2D Pattern Projection (Input) | 3D Point Cloud (Output) |
 |:---:|:---:|
 | <img src="media/2d_input.png" height="300"> | <img src="media/3d_output.png" height="300"> |
+
+</div>
 
 ## Key Features
 
