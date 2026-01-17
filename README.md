@@ -2,6 +2,10 @@
 
 A high-performance C++17 engine for 3D reconstruction using calibrated structured light patterns. This project focuses on high-precision metrology by triangulating correspondences between a camera and a projector.
 
+| 2D Pattern Projection (Input) | 3D Point Cloud (Output) |
+|:---:|:---:|
+| ![Pattern Projection](docs/images/pattern.png) | ![3D Reconstruction](docs/images/reconstruction.png) |
+
 ## Key Features
 
 - **Gray Code Decoding**: Robust decoding of binary-coded structured light patterns.
