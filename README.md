@@ -13,31 +13,6 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
 - **Geometric Triangulation**: Fast computation of 3D point clouds from 2D pixel-to-pixel matches.
 - **Sparse Point Clouds**: Efficient handling and export of high-density geometric data.
 
-## Requirements
-
-- **C++17** compatible compiler
-- **OpenCV** (Core modules)
-- **Eigen3** (Linear algebra)
-- **nlohmann/json** (Calibration parsing)
-
-## Building
-
-```bash
-mkdir build && cd build
-cmake ..
-make
-```
-
-## Usage
-
-```bash
-./simple_recon <camera.json> <projector.json> <input_folder> [output.ply]
-```
-
-- `<camera.json>`: Standard camera intrinsics and distortion.
-- `<projector.json>`: Projector calibration data (treated as a camera).
-- `<input_folder>`: Directory containing the EXR pattern sequence.
-- `[output.ply]`: (Optional) Path to save the resulting point cloud.
 
 ## Data Source
 
