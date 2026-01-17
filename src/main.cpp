@@ -23,14 +23,15 @@ int main(int argc, char *argv[]) {
     Reconstructor recon(cam_file, proj_file);
 
     if (fs::is_directory(input_path)) {
-      // Mode 2: Real Decoding
+      // 1. Decode Gray-coded patterns from a sequence of images
       std::cout << "Running Decoder..." << std::endl;
 
       Decoder decoder;
-      // Configure cropping to remove background walls (matches Python defaults)
+      // Sensor-specific cropping to ignore outlier surfaces (walls, etc.)
       decoder.setCrop(1600, -150);
       decoder.decodeSequence(input_path);
 
+      // 2. Triangulate the decoded pixel matches into 3D points
       std::cout << "Reconstructing..." << std::endl;
       recon.processMatches(decoder.getMatches());
 
@@ -40,6 +41,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
+    // 3. Export the final point cloud
     recon.saveToPLY(output_ply);
 
   } catch (const std::exception &e) {

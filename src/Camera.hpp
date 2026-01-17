@@ -1,35 +1,30 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <fstream>
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/opencv.hpp>
-#include <string>
 
 using json = nlohmann::json;
 
+/**
+ * Represents a pinhole camera or projector with lens distortion.
+ * Handles coordinate transformations between 2D pixels and 3D rays.
+ */
 class Camera {
 public:
-  // Parsing constructor
   Camera(const std::string &calibration_file);
 
-  // Core functionality: Turn a 2D pixel (u,v) into a 3D ray direction (x,y,z)
-  // The result is in WORLD COORDINATES.
   Eigen::Vector3d pixelToRay(double u, double v);
 
-  // Getters for debugging
   cv::Mat getCameraMatrix() const { return m_cameraMatrix; }
   Eigen::Vector3d getPosition() const;
 
 private:
-  // Intrinsics (OpenCV)
-  cv::Mat m_cameraMatrix;
-  cv::Mat m_distCoeffs;
+  cv::Mat m_cameraMatrix; // 3x3 Intrinsic matrix [fx 0 cx; 0 fy cy; 0 0 1]
+  cv::Mat m_distCoeffs;   // Lens distortion coefficients
   int m_width, m_height;
 
-  // Extrinsics (Eigen)
-  Eigen::Matrix3d m_basis;  // Rotation
-  Eigen::Vector3d m_origin; // Translation (World Position)
+  Eigen::Matrix3d m_basis;  // Rotation basis for world coordinates
+  Eigen::Vector3d m_origin; // Camera center in world coordinates
 };
