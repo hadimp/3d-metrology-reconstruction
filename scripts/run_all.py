@@ -1,7 +1,6 @@
 import subprocess
 import os
 import numpy as np
-import math
 import json
 import argparse
 from scipy.spatial.transform import Rotation as R
@@ -41,7 +40,7 @@ def main():
     parser.add_argument("--stage", type=str, default="../data/calibrations/stage_geometry.json", help="Stage geometry JSON")
     parser.add_argument("--z_min", type=float, default=810.0, help="Minimum Z for filtering")
     parser.add_argument("--z_max", type=float, default=890.0, help="Maximum Z for filtering")
-    parser.add_argument("--recon_bin", type=str, default="./simple_recon", help="Path to the simple_recon executable")
+    parser.add_argument("--recon_bin", type=str, default="./metrology-recon", help="Path to the metrology-recon executable")
     
     args = parser.parse_args()
 

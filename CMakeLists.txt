@@ -19,8 +19,8 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(simple_recon src/main.cpp src/Camera.cpp src/Intersection.cpp src/Reconstructor.cpp src/Decoder.cpp)
-target_link_libraries(simple_recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS})
+add_executable(metrology-recon src/main.cpp src/Camera.cpp src/Intersection.cpp src/Reconstructor.cpp src/Decoder.cpp)
+target_link_libraries(metrology-recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS})
 
 
 # Create a compile_commands.json for editor tooling
