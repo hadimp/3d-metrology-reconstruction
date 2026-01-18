@@ -6,7 +6,7 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
   
 | 2D Pattern Projection (Input) | 3D Point Cloud (Output) |
 |:---:|:---:|
-| <img src="img/2d_input.png" height="300"> | <img src="img/3d_output.png" height="300"> |
+| <img src="media/2d_input.png" height="300"> | <img src="media/3d_output.png" height="300"> |
 
 </div>
 
@@ -17,6 +17,28 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
 - **Geometric Triangulation**: Fast computation of 3D point clouds from 2D pixel-to-pixel matches.
 - **Sparse Point Clouds**: Efficient handling and export of high-density geometric data.
 
+
+## Building the Engine
+
+The C++ engine requires **OpenCV**, **Eigen**, and a C++17 compiler.
+
+```bash
+mkdir build && cd build
+cmake ..
+make -j8
+```
+
+## Usage
+
+After building the engine, use the provided Python scripts to automate the multi-view reconstruction and merge.
+
+```bash
+# 1. Run full 360° reconstruction
+python3 scripts/run_all.py
+
+# 2. Generate interactive 3D visualization
+python3 scripts/visualize_interactive.py --input media/full_model.ply
+```
 
 ## Data Source
 

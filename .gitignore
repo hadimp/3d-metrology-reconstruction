@@ -18,8 +18,8 @@ test_exr
 *.html
 *.png
 *.exr
-!img/*.png
-!img/*.exr
+!media/*.png
+!media/*.exr
 
 # Python
 venv/

@@ -34,7 +34,7 @@ def load_ply(filename):
 def main():
     parser = argparse.ArgumentParser(description="Process multi-view scans and merge into a full model.")
     parser.add_argument("--base_dir", type=str, default="../data/avocado_30_deg", help="Directory containing position folders")
-    parser.add_argument("--results_dir", type=str, default="results", help="Directory to save partial and full results")
+    parser.add_argument("--results_dir", type=str, default="media", help="Directory to save partial and full results")
     parser.add_argument("--camera", type=str, default="../data/calibrations/camera_geometry.json", help="Camera calibration JSON")
     parser.add_argument("--projector", type=str, default="../data/calibrations/projector_geometry.json", help="Projector calibration JSON")
     parser.add_argument("--stage", type=str, default="../data/calibrations/stage_geometry.json", help="Stage geometry JSON")
@@ -72,10 +72,15 @@ def main():
         # 2. Load Partial Cloud
         points = load_ply(output_ply)
         
-        # 3. Filter Background (Z-range)
+        # 3. Filter Background (Z-range) and ensure finite points
         mask = (points[:, 2] >= args.z_min) & (points[:, 2] <= args.z_max)
-        filtered_points = points[mask]
+        finite_mask = np.all(np.isfinite(points), axis=1)
+        final_mask = mask & finite_mask
+        filtered_points = points[final_mask]
         
+        if len(filtered_points) < len(points):
+            print(f"  Note: Filtered out {len(points) - len(filtered_points)} invalid/out-of-range points.")
+
         # 4. Rotate to Canonical Frame using Stage Geometry
         angle_rad = (angle_deg * np.pi / 180.0)
         rot = R.from_rotvec(-angle_rad * stage_dir)
