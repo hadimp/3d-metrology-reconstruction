@@ -1,2 +1,4 @@
 # Exclude the media folder from GitHub language statistics
-media/* linguist-generated=true
+# Exclude generated assets and large visualizations from language statistics
+media/** linguist-generated=true
+*.html linguist-generated=true
