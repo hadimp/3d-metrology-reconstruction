@@ -10,7 +10,7 @@ Makefile
 _deps/
 
 # Executables
-simple_recon
+metrology-recon
 test_exr
 
 # Output Files
