@@ -1,0 +1,2 @@
+# Exclude the media folder from GitHub language statistics
+media/* linguist-generated=true
