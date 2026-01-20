@@ -19,7 +19,7 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
 
 ## Performance Comparison: C++ vs Python
 
-The C++ engine was built to handle millions of points per scan with industrial-level throughput. Below is a benchmark comparing the optimized C++ engine against the original Python (NumPy) implementation on an **Apple M2 Max (Position 0)**.
+The C++ engine was built to handle millions of points per scan with industrial-level throughput. Below is a benchmark comparing the optimized C++ engine against the original Python (NumPy) implementation on an **Apple M4 (Position 0)**.
 
 | Metric | Python (NumPy) | C++ (Optimized) | **Improvement** |
 | :--- | :--- | :--- | :--- |
