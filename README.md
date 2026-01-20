@@ -24,9 +24,9 @@ The C++ engine was built to handle millions of points per scan with industrial-l
 | Metric | Python (NumPy) | C++ (Optimized) | **Improvement** |
 | :--- | :--- | :--- | :--- |
 | **Point Density** | ~454K points | **~9.28M points** | **20.4x Density** |
-| **Decoding (Per Point)** | 28.61 $\mu$s/pt | **0.93 $\mu$s/pt** | **30.7x Faster** |
-| **Triangulation (Per Point)**| 0.89 $\mu$s/pt | **0.18 $\mu$s/pt** | **4.9x Faster** |
-| **Total Pipeline (Per Point)**| 29.50 $\mu$s/pt | **1.11 $\mu$s/pt** | **26.5x Efficiency** |
+| **Decoding (Per Point)** | 28.61 µs/pt | **0.93 µs/pt** | **30.7x Faster** |
+| **Triangulation (Per Point)**| 0.89 µs/pt | **0.18 µs/pt** | **4.9x Faster** |
+| **Total Pipeline (Per Point)**| 29.50 µs/pt | **1.11 µs/pt** | **26.5x Efficiency** |
 
 ### How We Achieved This Boost
 
