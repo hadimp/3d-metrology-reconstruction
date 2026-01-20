@@ -39,8 +39,7 @@ To achieve a **30x throughput improvement**, the engine uses several high-perfor
     - Compiled with **`-O3 -march=native`** to allow the compiler to use specific ARM NEON instructions.
     - Leveraged **Eigen's optimized math routines**, allowing the CPU to process 4-8 coordinates in a single clock cycle.
 3.  **Memory Management**:
-    - Pre-allocated large vectors using `.reserve()` to avoid expensive memory reallocations during processing.
-- **Cache-Optimized Layout**: Reverted to a high-performance **Array-of-Structures (AoS)** layout that balances object-oriented design with excellent CPU cache locality.
+    - Eliminated performance-degrading reallocations by using **`.reserve()`** in the Decoder and **`.resize()`** in the Reconstructor, ensuring heap memory is allocated once before the massive processing loops begin.
 4.  **Binary I/O Optimization**:
     - Replaced text-based PLY writing with **Direct Binary Buffer dumps**. Writing 9 Million points now takes milliseconds rather than seconds.
 
