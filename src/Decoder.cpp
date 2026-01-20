@@ -1,5 +1,6 @@
 #include "Decoder.hpp"
 #include <iostream>
+#include <omp.h>
 
 Decoder::Decoder() {}
 
@@ -75,7 +76,6 @@ void Decoder::decodeSequence(const std::string &folder_path) {
       char buf1[32], buf2[32];
       snprintf(buf1, sizeof(buf1), "/img_%02d.exr", i);
       snprintf(buf2, sizeof(buf2), "/img_%02d.exr", i + 1);
-      // ... (rest of the loop)
 
       cv::Mat pattern = cv::imread(folder_path + buf1, cv::IMREAD_UNCHANGED);
       cv::Mat inv_pattern =
@@ -91,6 +91,7 @@ void Decoder::decodeSequence(const std::string &folder_path) {
       if (inv_pattern.channels() > 1)
         cv::cvtColor(inv_pattern, inv_pattern, cv::COLOR_BGR2GRAY);
 
+#pragma omp parallel for
       for (int r = 0; r < rows; ++r) {
         float *p_row = pattern.ptr<float>(r);
         float *inv_row = inv_pattern.ptr<float>(r);
@@ -110,40 +111,60 @@ void Decoder::decodeSequence(const std::string &folder_path) {
   };
 
   // Vertical images
+  std::cout << "  Decoding Vertical Bits..." << std::endl;
   decode_bits(2, 24, code_V);
 
   // Horizontal images
+  std::cout << "  Decoding Horizontal Bits..." << std::endl;
   decode_bits(24, 46, code_H);
 
   // Gray to Binary & Generate Matches
-  int valid_matches = 0;
+  std::cout << "  Finalizing matches..." << std::endl;
 
-  for (int r = 0; r < rows; ++r) {
-    int *row_v = code_V.ptr<int>(r);
-    int *row_h = code_H.ptr<int>(r);
-    uint8_t *mask_row = m_mask.ptr<uint8_t>(r);
+  // Use thread-local storage to avoid push_back contention
+  int max_threads = omp_get_max_threads();
+  std::vector<std::vector<Match>> thread_local_matches(max_threads);
 
-    for (int c = 0; c < cols; ++c) {
-      if (mask_row[c]) {
-        unsigned int gray_v = (unsigned int)row_v[c];
-        unsigned int gray_h = (unsigned int)row_h[c];
+#pragma omp parallel
+  {
+    int thread_id = omp_get_thread_num();
+    std::vector<Match> &local_matches = thread_local_matches[thread_id];
 
-        if (gray_v > 0 && gray_h > 0) {
-          unsigned int bin_v = grayToBinary(gray_v);
-          unsigned int bin_h = grayToBinary(gray_h);
+#pragma omp for
+    for (int r = 0; r < rows; ++r) {
+      int *row_v = code_V.ptr<int>(r);
+      int *row_h = code_H.ptr<int>(r);
+      uint8_t *mask_row = m_mask.ptr<uint8_t>(r);
 
-          // Map the decoded binary codes back to projector pixel space
-          // Note: The magic constants (64.0, 484.0) are sensor-specific offsets
-          Match m;
-          m.cam_u = (double)c;
-          m.cam_v = (double)r;
-          m.proj_u = (double)bin_v - 64.0;
-          m.proj_v = (double)bin_h - 484.0;
+      for (int c = 0; c < cols; ++c) {
+        if (mask_row[c]) {
+          unsigned int gray_v = (unsigned int)row_v[c];
+          unsigned int gray_h = (unsigned int)row_h[c];
 
-          m_matches.push_back(m);
-          valid_matches++;
+          if (gray_v > 0 && gray_h > 0) {
+            unsigned int bin_v = grayToBinary(gray_v);
+            unsigned int bin_h = grayToBinary(gray_h);
+
+            Match m;
+            m.cam_u = (double)c;
+            m.cam_v = (double)r;
+            m.proj_u = (double)bin_v - 64.0;
+            m.proj_v = (double)bin_h - 484.0;
+
+            local_matches.push_back(m);
+          }
         }
       }
     }
+  }
+
+  // Merge the buckets
+  size_t total_matches = 0;
+  for (const auto &bucket : thread_local_matches) {
+    total_matches += bucket.size();
+  }
+  m_matches.reserve(total_matches);
+  for (auto &bucket : thread_local_matches) {
+    m_matches.insert(m_matches.end(), bucket.begin(), bucket.end());
   }
 }

@@ -5,31 +5,39 @@ import json
 import argparse
 from scipy.spatial.transform import Rotation as R
 
+import struct
+
 def save_ply(points, filename):
-    with open(filename, 'w') as f:
-        f.write("ply\n")
-        f.write("format ascii 1.0\n")
-        f.write(f"element vertex {len(points)}\n")
-        f.write("property float x\n")
-        f.write("property float y\n")
-        f.write("property float z\n")
-        f.write("end_header\n")
-        for p in points:
-            f.write(f"{p[0]} {p[1]} {p[2]}\n")
+    # Save as Binary Little Endian
+    with open(filename, 'wb') as f:
+        header = (
+            f"ply\n"
+            f"format binary_little_endian 1.0\n"
+            f"element vertex {len(points)}\n"
+            f"property float x\n"
+            f"property float y\n"
+            f"property float z\n"
+            f"end_header\n"
+        )
+        f.write(header.encode('ascii'))
+        # Pack everything as floats (f) in little-endian (<)
+        # We can pack the entire array at once for maximum speed
+        f.write(points.astype(np.float32).tobytes())
 
 def load_ply(filename):
-    points = []
-    with open(filename, 'r') as f:
-        # Skip header
-        line = f.readline()
-        while line and "end_header" not in line:
-            line = f.readline()
+    with open(filename, 'rb') as f:
+        # Read header to find vertex count
+        header = ""
+        while "end_header" not in header:
+            line = f.readline().decode('ascii', errors='ignore')
+            header += line
+            if "element vertex" in line:
+                num_points = int(line.split()[-1])
         
-        for line in f:
-            vals = line.strip().split()
-            if len(vals) >= 3:
-                points.append([float(vals[0]), float(vals[1]), float(vals[2])])
-    return np.array(points)
+        # Read the rest as binary data
+        data = f.read()
+        points = np.frombuffer(data, dtype=np.float32).reshape(-1, 3)
+        return points
 
 def main():
     parser = argparse.ArgumentParser(description="Process multi-view scans and merge into a full model.")
