@@ -30,7 +30,7 @@ The C++ engine was built to handle millions of points per scan with industrial-l
 
 ### How We Achieved This Boost
 
-To achieve a **30x throughput improvement**, the engine uses several high-performance C++ techniques:
+To achieve a **26x throughput improvement**, the engine uses several high-performance C++ techniques:
 
 1.  **Multi-threaded Parallelism (OpenMP)**:
     - We parallelized the decoding loops and the triangulation step across all available CPU cores.
@@ -39,9 +39,9 @@ To achieve a **30x throughput improvement**, the engine uses several high-perfor
     - Compiled with **`-O3 -march=native`** to allow the compiler to use specific ARM NEON instructions.
     - Leveraged **Eigen's optimized math routines**, allowing the CPU to process 4-8 coordinates in a single clock cycle.
 3.  **Memory Management**:
-    - Eliminated performance-degrading reallocations by using **`.reserve()`** in the Decoder and **`.resize()`** in the Reconstructor, ensuring heap memory is allocated once before the massive processing loops begin.
+    - Eliminated performance-degrading reallocations, ensuring heap memory is allocated once before the massive processing loops begin.
 4.  **Binary I/O Optimization**:
-    - Replaced text-based PLY writing with **Direct Binary Buffer dumps**. Writing 9 Million points now takes milliseconds rather than seconds.
+    - Replaced text-based PLY writing with **Direct Binary Buffer dumps**.
 
 
 ## Building the Engine
