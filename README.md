@@ -19,14 +19,14 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
 
 ## Performance Comparison: C++ vs Python
 
-The C++ engine was built to handle millions of points per scan with industrial-level throughput. Below is a benchmark comparing the optimized C++ engine against the original Python (NumPy) implementation on an **Apple M4 (Position 0)**.
+The C++ engine was built to handle millions of points per scan with industrial-level throughput. Below is a benchmark comparing the optimized C++ engine against the original Python (NumPy) implementation on an **Apple M4**.
 
 | Metric | Python (NumPy) | C++ (Optimized) | **Improvement** |
 | :--- | :--- | :--- | :--- |
-| **Decoding Time** | ~13.0s | **~8.6s** | **1.5x Absolute** |
-| **Point Density** | ~450K points | **~9.3M points** | **20x More Data** |
-| **Triangulation Speed** | 0.89 $\mu$s/pt | **0.18 $\mu$s/pt** | **4.9x Faster** |
-| **Total Throughput** | ~33.8 $\mu$s/pt | **~1.1 $\mu$s/pt** | **30x More Efficient** |
+| **Point Density** | ~454K points | **~9.28M points** | **20.4x Density** |
+| **Decoding (Per Point)** | 28.61 $\mu$s/pt | **0.93 $\mu$s/pt** | **30.7x Faster** |
+| **Triangulation (Per Point)**| 0.89 $\mu$s/pt | **0.18 $\mu$s/pt** | **4.9x Faster** |
+| **Total Pipeline (Per Point)**| 29.50 $\mu$s/pt | **1.11 $\mu$s/pt** | **26.5x Efficiency** |
 
 ### How We Achieved This Boost
 
