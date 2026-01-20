@@ -35,7 +35,7 @@ void Reconstructor::saveToPLY(const std::string &output_path) {
     return;
   }
 
-  // Write PLY Header - we still use ASCII for the header
+  // Write PLY Header
   file << "ply\n";
   file << "format binary_little_endian 1.0\n";
   file << "element vertex " << m_pointCloud.size() << "\n";
@@ -44,7 +44,7 @@ void Reconstructor::saveToPLY(const std::string &output_path) {
   file << "property float z\n";
   file << "end_header\n";
 
-  // Write Points in Binary format (much faster than ASCII)
+  // Write Points in Binary format
   for (const auto &p : m_pointCloud) {
     float x = (float)p.x();
     float y = (float)p.y();

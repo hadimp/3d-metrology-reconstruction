@@ -20,7 +20,7 @@ if (APPLE)
     
     add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
     set_target_properties(OpenMP::OpenMP_CXX PROPERTIES
-        INTERFACE_COMPILE_OPTIONS "-Xpreprocessor -fopenmp"
+        INTERFACE_COMPILE_OPTIONS "-Xpreprocessor;-fopenmp"
         INTERFACE_INCLUDE_DIRECTORIES "${OMP_INCLUDE_DIR}"
         INTERFACE_LINK_LIBRARIES "${OMP_LIB}"
     )
@@ -37,15 +37,9 @@ FetchContent_Declare(json
 FetchContent_MakeAvailable(json)
 
 add_executable(metrology-recon src/main.cpp src/Camera.cpp src/Intersection.cpp src/Reconstructor.cpp src/Decoder.cpp)
-target_link_libraries(metrology-recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS})
+target_link_libraries(metrology-recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS} OpenMP::OpenMP_CXX)
 
-if (APPLE)
-    target_compile_options(metrology-recon PRIVATE "-Xpreprocessor" "-fopenmp")
-    target_link_libraries(metrology-recon PRIVATE "/opt/homebrew/opt/libomp/lib/libomp.dylib")
-    target_include_directories(metrology-recon PRIVATE "/opt/homebrew/opt/libomp/include")
-else()
-    target_link_libraries(metrology-recon PRIVATE OpenMP::OpenMP_CXX)
-endif()
+# Create a compile_commands.json for editor tooling
 
 
 # Create a compile_commands.json for editor tooling

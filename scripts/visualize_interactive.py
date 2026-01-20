@@ -7,24 +7,19 @@ import argparse
 def visualize_full(ply_path, out_html, target_points=100000):
     print(f"Reading {ply_path}...")
     
-    all_points = []
+    with open(ply_path, 'rb') as f:
+        # Read header to find vertex count
+        header = ""
+        while "end_header" not in header:
+            line = f.readline().decode('ascii', errors='ignore')
+            header += line
+            if "element vertex" in line:
+                num_verts = int(line.split()[-1])
+        
+        # Read the rest as binary data
+        data = f.read()
+        points = np.frombuffer(data, dtype=np.float32).reshape(-1, 3)
     
-    if not os.path.exists(ply_path):
-        print(f"Error: {ply_path} not found.")
-        sys.exit(1)
-
-    with open(ply_path, 'r') as f:
-        # Skip header
-        line = f.readline()
-        while line and "end_header" not in line:
-            line = f.readline()
-            
-        for line in f:
-            vals = line.strip().split()
-            if len(vals) < 3: continue
-            all_points.append([float(vals[0]), float(vals[1]), float(vals[2])])
-
-    points = np.array(all_points)
     print(f"Loaded {len(points)} points.")
     
     if len(points) > target_points:

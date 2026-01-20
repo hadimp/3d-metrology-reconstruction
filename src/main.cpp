@@ -6,6 +6,7 @@ namespace fs = std::filesystem;
 #include "Decoder.hpp"
 
 int main(int argc, char *argv[]) {
+  std::cout << "Debug: Entering main()" << std::endl;
   // We now expect 3 or 4 arguments: camera, projector, input, [output]
   if (argc < 4) {
     std::cerr << "Usage: " << argv[0]

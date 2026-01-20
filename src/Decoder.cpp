@@ -118,7 +118,7 @@ void Decoder::decodeSequence(const std::string &folder_path) {
   std::cout << "  Decoding Horizontal Bits..." << std::endl;
   decode_bits(24, 46, code_H);
 
-  // Gray to Binary & Generate Matches
+  // Finalize matches
   std::cout << "  Finalizing matches..." << std::endl;
 
   // Use thread-local storage to avoid push_back contention
@@ -145,6 +145,9 @@ void Decoder::decodeSequence(const std::string &folder_path) {
             unsigned int bin_v = grayToBinary(gray_v);
             unsigned int bin_h = grayToBinary(gray_h);
 
+            // Map the decoded binary codes back to projector pixel space
+            // Note: The magic constants (64.0, 484.0) are sensor-specific
+            // offsets
             Match m;
             m.cam_u = (double)c;
             m.cam_v = (double)r;
