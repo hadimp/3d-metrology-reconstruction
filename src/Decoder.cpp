@@ -39,14 +39,13 @@ void Decoder::decodeSequence(const std::string &folder_path) {
 
   // Create a mask of pixels that have enough signal contrast
   cv::Mat img_diff = img_white - img_blank;
-  double signal_threshold = 0.05;
-  cv::threshold(img_diff, m_mask, signal_threshold, 1.0, cv::THRESH_BINARY);
-  m_mask.convertTo(m_mask, CV_8U);
 
-  // Noise reduction via morphological erosion
-  cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS, cv::Size(3, 3));
-  cv::morphologyEx(m_mask, m_mask, cv::MORPH_ERODE, element, cv::Point(-1, -1),
-                   6);
+  // 1. Gaussian Blur (sigma=0.5) for noise reduction
+  cv::GaussianBlur(img_diff, img_diff, cv::Size(0, 0), 0.5);
+
+  // 2. Fixed Threshold selection
+  cv::threshold(img_diff, m_mask, 0.05, 255, cv::THRESH_BINARY);
+  m_mask.convertTo(m_mask, CV_8U);
 
   if (m_crop > 0) {
     m_mask.colRange(0, m_crop) = 0;
