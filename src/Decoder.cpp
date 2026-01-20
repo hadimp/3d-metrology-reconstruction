@@ -40,12 +40,12 @@ void Decoder::decodeSequence(const std::string &folder_path) {
   // Create a mask of pixels that have enough signal contrast
   cv::Mat img_diff = img_white - img_blank;
 
-  // 1. Gaussian Blur (sigma=0.5) for noise reduction
-  cv::GaussianBlur(img_diff, img_diff, cv::Size(0, 0), 0.5);
-
-  // 2. Fixed Threshold selection
+  // 1. Fixed Threshold selection (0.05) on RAW signal
   cv::threshold(img_diff, m_mask, 0.05, 255, cv::THRESH_BINARY);
   m_mask.convertTo(m_mask, CV_8U);
+
+  // 2. Blur the mask to smooth boundaries
+  cv::GaussianBlur(m_mask, m_mask, cv::Size(0, 0), 0.5);
 
   if (m_crop > 0) {
     m_mask.colRange(0, m_crop) = 0;
