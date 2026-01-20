@@ -111,12 +111,21 @@ void Decoder::decodeSequence(const std::string &folder_path) {
   };
 
   // Vertical images
+  auto start_v = std::chrono::high_resolution_clock::now();
   std::cout << "  Decoding Vertical Bits..." << std::endl;
   decode_bits(2, 24, code_V);
+  auto end_v = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> diff_v = end_v - start_v;
 
   // Horizontal images
+  auto start_h = std::chrono::high_resolution_clock::now();
   std::cout << "  Decoding Horizontal Bits..." << std::endl;
   decode_bits(24, 46, code_H);
+  auto end_h = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> diff_h = end_h - start_h;
+
+  auto start_finalize = std::chrono::high_resolution_clock::now();
+  std::cout << "  Finalizing matches..." << std::endl;
 
   // Finalize matches
   std::cout << "  Finalizing matches..." << std::endl;
@@ -166,8 +175,19 @@ void Decoder::decodeSequence(const std::string &folder_path) {
   for (const auto &bucket : thread_local_matches) {
     total_matches += bucket.size();
   }
+  m_matches.clear();
   m_matches.reserve(total_matches);
   for (auto &bucket : thread_local_matches) {
     m_matches.insert(m_matches.end(), bucket.begin(), bucket.end());
   }
+
+  auto end_finalize = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> diff_finalize = end_finalize - start_finalize;
+
+  std::cout << "  [Timing] Vertical decoding:   " << diff_v.count() << "s"
+            << std::endl;
+  std::cout << "  [Timing] Horizontal decoding: " << diff_h.count() << "s"
+            << std::endl;
+  std::cout << "  [Timing] Finalizing matches:  " << diff_finalize.count()
+            << "s" << std::endl;
 }

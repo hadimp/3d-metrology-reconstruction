@@ -39,8 +39,10 @@ FetchContent_MakeAvailable(json)
 add_executable(metrology-recon src/main.cpp src/Camera.cpp src/Intersection.cpp src/Reconstructor.cpp src/Decoder.cpp)
 target_link_libraries(metrology-recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS} OpenMP::OpenMP_CXX)
 
-# Create a compile_commands.json for editor tooling
-
+# Optimization flags for speed and vectorization
+if(NOT MSVC)
+    target_compile_options(metrology-recon PRIVATE -O3 -march=native)
+endif()
 
 # Create a compile_commands.json for editor tooling
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

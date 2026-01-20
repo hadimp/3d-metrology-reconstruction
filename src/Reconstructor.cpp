@@ -1,5 +1,6 @@
 #include "Reconstructor.hpp"
 #include "Intersection.hpp"
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <omp.h>
@@ -9,6 +10,7 @@ Reconstructor::Reconstructor(const std::string &cam_json,
     : m_camera(cam_json), m_projector(proj_json) {}
 
 void Reconstructor::processMatches(const std::vector<Match> &matches) {
+  auto start = std::chrono::high_resolution_clock::now();
   m_pointCloud.resize(matches.size());
 
 #pragma omp parallel for
@@ -25,6 +27,13 @@ void Reconstructor::processMatches(const std::vector<Match> &matches) {
     // 3. Store the resulting 3D point directly into the pre-allocated vector
     m_pointCloud[i] = point;
   }
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> diff = end - start;
+  std::cout << "  [Timing] Triangulation:         " << diff.count() << "s for "
+            << matches.size() << " points" << std::endl;
+  std::cout << "  [Timing] Per-point (triang):    "
+            << (diff.count() / matches.size()) * 1e6 << " microseconds"
+            << std::endl;
 }
 
 void Reconstructor::saveToPLY(const std::string &output_path) {
