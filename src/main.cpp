@@ -6,7 +6,6 @@ namespace fs = std::filesystem;
 #include "Decoder.hpp"
 
 int main(int argc, char *argv[]) {
-  std::cout << "Debug: Entering main()" << std::endl;
   // We now expect 3 or 4 arguments: camera, projector, input, [output]
   if (argc < 4) {
     std::cerr << "Usage: " << argv[0]
@@ -25,7 +24,6 @@ int main(int argc, char *argv[]) {
 
     if (fs::is_directory(input_path)) {
       // 1. Decode Gray-coded patterns from a sequence of images
-      std::cout << "Running Decoder..." << std::endl;
 
       Decoder decoder;
       // Sensor-specific cropping to ignore outlier surfaces (walls, etc.)
@@ -33,7 +31,6 @@ int main(int argc, char *argv[]) {
       decoder.decodeSequence(input_path);
 
       // 2. Triangulate the decoded pixel matches into 3D points
-      std::cout << "Reconstructing..." << std::endl;
       recon.processMatches(decoder.getMatches());
 
     } else {
