@@ -46,9 +46,12 @@ def main():
     parser.add_argument("--camera", type=str, default="../data/calibrations/camera_geometry.json", help="Camera calibration JSON")
     parser.add_argument("--projector", type=str, default="../data/calibrations/projector_geometry.json", help="Projector calibration JSON")
     parser.add_argument("--stage", type=str, default="../data/calibrations/stage_geometry.json", help="Stage geometry JSON")
-    parser.add_argument("--z_min", type=float, default=810.0, help="Minimum Z for filtering")
-    parser.add_argument("--z_max", type=float, default=890.0, help="Maximum Z for filtering")
+    parser.add_argument("--z_min", type=float, default=800.0, help="Minimum Z for filtering")
+    parser.add_argument("--z_max", type=float, default=950.0, help="Maximum Z for filtering")
+    parser.add_argument("--max_radius", type=float, default=100.0, help="Maximum radial distance from the rotation axis")
     parser.add_argument("--recon_bin", type=str, default="./metrology-recon", help="Path to the metrology-recon executable")
+    parser.add_argument("--visualize", action="store_true", help="Generate interactive HTML visualization")
+    parser.add_argument("--viz_points", type=int, default=500000, help="Number of points for visualization")
     
     args = parser.parse_args()
 
@@ -89,11 +92,23 @@ def main():
         if len(filtered_points) < len(points):
             print(f"  Note: Filtered out {len(points) - len(filtered_points)} invalid/out-of-range points.")
 
-        # 4. Rotate to Canonical Frame using Stage Geometry
+        # 4. Filter by radial distance from rotation axis (X-Y spatial filtering)
+        centered_points = filtered_points - stage_p
+        
+        # Projection of centered points onto the rotation axis
+        proj = (centered_points @ stage_dir)[:, None] * stage_dir[None, :]
+        # Radial distance from the axis
+        dist_from_axis = np.linalg.norm(centered_points - proj, axis=1)
+        
+        radius_mask = dist_from_axis <= args.max_radius
+        centered_points = centered_points[radius_mask]
+        
+        if len(centered_points) < len(filtered_points):
+            print(f"  Note: Filtered out {len(filtered_points) - len(centered_points)} points outside radial distance {args.max_radius}mm.")
+
+        # 5. Rotate to Canonical Frame using Stage Geometry
         angle_rad = (angle_deg * np.pi / 180.0)
         rot = R.from_rotvec(-angle_rad * stage_dir)
-        
-        centered_points = filtered_points - stage_p
         rotated_points = rot.apply(centered_points) + stage_p
         
         all_points.append(rotated_points)
@@ -108,8 +123,22 @@ def main():
         print(f"--- Done! ---")
         print(f"Full model saved to {full_path}")
         print(f"Total points: {len(full_cloud)}")
+
+        if args.visualize:
+            print("\n--- Generating Visualization ---")
+            viz_script = os.path.join(os.path.dirname(__file__), "visualize_interactive.py")
+            html_path = os.path.join(args.results_dir, "avocado_360_reconstruction.html")
+            cmd = [
+                sys.executable if "venv" in sys.executable else "python3", 
+                viz_script, 
+                "--input", full_path, 
+                "--output", html_path,
+                "--points", str(args.viz_points)
+            ]
+            subprocess.check_call(cmd)
     else:
         print("No points were generated.")
 
 if __name__ == "__main__":
+    import sys
     main()
