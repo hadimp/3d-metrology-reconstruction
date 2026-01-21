@@ -23,10 +23,10 @@ The C++ engine was built to handle millions of points per scan with industrial-l
 
 | Metric | Python (NumPy) | C++ (Optimized) | **Improvement** |
 | :--- | :--- | :--- | :--- |
-| **Point Density** | ~454K points | **~9.28M points** | **20.4x Density** |
-| **Decoding (Per Point)** | 28.61 µs/pt | **0.93 µs/pt** | **30.7x Faster** |
-| **Triangulation (Per Point)**| 0.89 µs/pt | **0.18 µs/pt** | **4.9x Faster** |
-| **Total Pipeline (Per Point)**| 29.50 µs/pt | **1.11 µs/pt** | **26.5x Efficiency** |
+| **Point Density** | ~454K points | ~9.28M points | 20.4x Density |
+| **Decoding (Per Point)** | 28.61 µs/pt | 0.93 µs/pt | 30.7x Faster |
+| **Triangulation (Per Point)**| 0.89 µs/pt | 0.18 µs/pt | 4.9x Faster |
+| **Total Pipeline (Per Point)**| 29.50 µs/pt | 1.11 µs/pt | 26.5x Efficiency |
 
 ### How We Achieved This Boost
 
@@ -34,10 +34,10 @@ To achieve a **26x throughput improvement**, the engine uses several high-perfor
 
 1.  **Multi-threaded Parallelism (OpenMP)**:
     - We parallelized the decoding loops and the triangulation step across all available CPU cores.
-    - Used **thread-local "bucket" storage** for matches to prevent "mutex-locking" (contention) which usually kills multi-threaded performance.
+    - Used thread-local "bucket" storage for matches to prevent "mutex-locking" (contention) which usually kills multi-threaded performance.
 2.  **Hardware-Level Vectorization (SIMD)**:
     - Allowed the compiler to use specific ARM NEON instructions.
-    - Leveraged **Eigen's optimized math routines**, allowing the CPU to process 4-8 coordinates in a single clock cycle.
+    - Leveraged Eigen's optimized math routines, allowing the CPU to process 4-8 coordinates in a single clock cycle.
 3.  **Memory Management**:
     - Eliminated performance-degrading reallocations, ensuring heap memory is allocated once before the massive processing loops begin.
 
