@@ -36,13 +36,10 @@ To achieve a **26x throughput improvement**, the engine uses several high-perfor
     - We parallelized the decoding loops and the triangulation step across all available CPU cores.
     - Used **thread-local "bucket" storage** for matches to prevent "mutex-locking" (contention) which usually kills multi-threaded performance.
 2.  **Hardware-Level Vectorization (SIMD)**:
-    - Compiled with **`-O3 -march=native`** to allow the compiler to use specific ARM NEON instructions.
+    - Allowed the compiler to use specific ARM NEON instructions.
     - Leveraged **Eigen's optimized math routines**, allowing the CPU to process 4-8 coordinates in a single clock cycle.
 3.  **Memory Management**:
     - Eliminated performance-degrading reallocations, ensuring heap memory is allocated once before the massive processing loops begin.
-4.  **Binary I/O Optimization**:
-    - Replaced text-based PLY writing with **Direct Binary Buffer dumps**.
-
 
 ## Building the Engine
 
