@@ -26,3 +26,4 @@ test_exr
 venv/
 __pycache__/
 *.py
+src/metal-cpp/
