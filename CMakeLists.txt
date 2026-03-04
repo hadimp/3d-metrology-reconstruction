@@ -4,6 +4,10 @@ project(3d-metrology-reconstruction LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
+
 # Find Eigen3
 find_package(Eigen3 REQUIRED NO_MODULE)
 
@@ -36,8 +40,37 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(metrology-recon src/main.cpp src/Camera.cpp src/Intersection.cpp src/Reconstructor.cpp src/Decoder.cpp)
-target_link_libraries(metrology-recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS} OpenMP::OpenMP_CXX)
+# Custom command to compile Metal shaders
+if(APPLE)
+    # Find Apple SDKs
+    find_library(FOUNDATION_LIBRARY Foundation)
+    find_library(METAL_LIBRARY_FW Metal)
+    find_library(QUARTZCORE_LIBRARY QuartzCore)
+    find_library(COREGRAPHICS_LIBRARY CoreGraphics)
+    set(APPLE_FRAMEWORKS ${FOUNDATION_LIBRARY} ${METAL_LIBRARY_FW} ${QUARTZCORE_LIBRARY} ${COREGRAPHICS_LIBRARY})
+endif()
+
+# We include the downloaded metal-cpp
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/metal-cpp/metal-cpp)
+
+add_executable(metrology-recon 
+    src/main.cpp 
+    src/Camera.cpp 
+    src/Intersection.cpp 
+    src/Reconstructor.cpp 
+    src/Decoder.cpp 
+    src/MetalContext.cpp)
+
+if(APPLE)
+    target_link_libraries(metrology-recon PRIVATE 
+        Eigen3::Eigen 
+        nlohmann_json::nlohmann_json 
+        ${OpenCV_LIBS} 
+        OpenMP::OpenMP_CXX 
+        ${APPLE_FRAMEWORKS})
+else()
+    target_link_libraries(metrology-recon PRIVATE Eigen3::Eigen nlohmann_json::nlohmann_json ${OpenCV_LIBS} OpenMP::OpenMP_CXX)
+endif()
 
 # Optimization flags for speed and vectorization
 if(NOT MSVC)
