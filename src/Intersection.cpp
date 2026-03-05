@@ -18,7 +18,7 @@ Eigen::Vector3d intersectRays(const Eigen::Vector3d &o1,
   double t1 = 0.0;
   double t2 = 0.0;
 
-  if (std::abs(det) < 1e-6) {
+  if (std::abs(det) < 1e-5) {
     // Parallel lines: no unique intersection, return midpoint of origins
     return (o1 + o2) / 2.0;
   } else {
