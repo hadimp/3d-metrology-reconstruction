@@ -18,6 +18,8 @@ public:
   Eigen::Vector3d pixelToRay(double u, double v);
 
   cv::Mat getCameraMatrix() const { return m_cameraMatrix; }
+  cv::Mat getDistCoeffs() const { return m_distCoeffs; }
+  Eigen::Matrix3d getBasis() const { return m_basis; }
   Eigen::Vector3d getPosition() const;
 
 private:
