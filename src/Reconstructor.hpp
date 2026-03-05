@@ -28,7 +28,12 @@ public:
   }
 
 private:
+  void processMatchesCPU(const std::vector<Match> &matches);
+
   Camera m_camera;    // The observing camera
   Camera m_projector; // The structured light source (calibrated as a camera)
   std::vector<Eigen::Vector3d> m_pointCloud;
+
+  double m_zMin = 0.0;    // Background filter min depth
+  double m_zMax = 1000.0; // Background filter max depth
 };
