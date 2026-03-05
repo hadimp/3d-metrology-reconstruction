@@ -21,12 +21,14 @@ A high-performance C++17 engine for 3D reconstruction using calibrated structure
 
 The C++ engine was built to handle millions of points per scan with industrial-level throughput. Below is a benchmark comparing the optimized C++ engine against the original [Python (NumPy) implementation](https://github.com/geometryprocessing/scanner-sim) on an Apple M4.
 
-| Metric | Python (NumPy) | C++ (Optimized) | Improvement |
-| :--- | :--- | :--- | :--- |
-| **Point Density** | ~454K points | ~9.28M points | 20.4x Density |
-| **Decoding (Per Point)** | 28.61 µs/pt | 0.93 µs/pt | 30.7x Faster |
-| **Triangulation (Per Point)**| 0.89 µs/pt | 0.18 µs/pt | 4.9x Faster |
-| **Total Pipeline (Per Point)**| 29.50 µs/pt | 1.11 µs/pt | 26.5x Efficiency |
+| Metric | Python (NumPy) | C++ (CPU) | C++ (Metal GPU) | Improvement (GPU vs CPU) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Point Density** | ~454K points | ~9.28M points | ~9.28M points | Equivalent |
+| **Triangulation Time**| 0.89 µs/pt | 0.18 µs/pt | 0.04 µs/pt | **4.5x Faster** |
+| **Total Latency** | ~29.5 ms/pt | ~1.11 ms/pt | ~0.25 ms/pt | **4.4x Efficiency** |
+
+> [!TIP]
+> On Apple Silicon (M-series), the Metal GPU implementation provides a massive throughput boost by offloading lens undistortion and ray intersection directly to the GPU cores.
 
 ### How We Achieved This Boost
 
@@ -56,8 +58,11 @@ make -j8
 After building the engine, use the provided Python scripts to automate the multi-view reconstruction and merge.
 
 ```bash
-# 1. Run full 360° reconstruction
+# 1. Run full 360° reconstruction (Defaults to GPU on Mac)
 python3 scripts/run_all.py
+
+# To force CPU-only mode on Apple Silicon:
+USE_CPU_ONLY=1 python3 scripts/run_all.py
 
 # 2. Generate interactive 3D visualization
 python3 scripts/visualize_interactive.py --input media/full_model.ply
