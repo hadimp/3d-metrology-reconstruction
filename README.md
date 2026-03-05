@@ -24,24 +24,23 @@ The C++ engine was built to handle millions of points per scan with industrial-l
 | Metric | Python (NumPy) | C++ (CPU) | C++ (Metal GPU) | Improvement (GPU vs CPU) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Point Density** | ~454K points | ~9.28M points | ~9.28M points | Equivalent |
-| **Triangulation Time**| 0.89 µs/pt | 0.18 µs/pt | 0.04 µs/pt | **4.5x Faster** |
-| **Total Latency** | ~29.5 ms/pt | ~1.11 ms/pt | ~0.25 ms/pt | **4.4x Efficiency** |
-
-> [!TIP]
-> On Apple Silicon (M-series), the Metal GPU implementation provides a massive throughput boost by offloading lens undistortion and ray intersection directly to the GPU cores.
+| **Triangulation Time**| 0.89 µs/pt | 0.18 µs/pt | 0.04 µs/pt | **4.5x** |
+| **Total Latency** | ~29.5 µs/pt | ~1.11 µs/pt | ~0.25 µs/pt | **4.4x** |
 
 ### How We Achieved This Boost
 
-To achieve a **26x throughput improvement**, the engine uses several high-performance C++ techniques:
+To achieve a **118x total throughput improvement** over Python (and a 4.4x boost over optimized C++ CPU), the engine uses several high-performance techniques:
 
-1.  **Multi-threaded Parallelism (OpenMP)**:
-    - We parallelized the decoding loops and the triangulation step across all available CPU cores.
-    - Used thread-local "bucket" storage for matches to prevent "mutex-locking" (contention) which usually kills multi-threaded performance.
-2.  **Hardware-Level Vectorization (SIMD)**:
-    - Allowed the compiler to use specific ARM NEON instructions.
-    - Leveraged Eigen's optimized math routines, allowing the CPU to process 4-8 coordinates in a single clock cycle.
-3.  **Memory Management**:
-    - Eliminated performance-degrading reallocations, ensuring heap memory is allocated once before the massive processing loops begin.
+1.  **Metal GPU Acceleration (Apple Silicon)**:
+    - **Zero-Copy Memory**: Allowing the CPU and GPU to access the same physical memory without expensive copying.
+    - **Parallel Triangulation**: Offloaded lens-undistortion and ray-intersection calculations to GPU threads.
+2.  **Multi-threaded Parallelism (OpenMP)**:
+    - When running on CPU, we parallelize the decoding and triangulation logic across all available cores.
+    - Used thread-local storage for variable-length result sets to eliminate mutex contention.
+3.  **Hardware-Level Vectorization (SIMD)**:
+    - Leveraged Eigen's optimized math routines and ARM NEON intrinsics to process multiple coordinates per clock cycle.
+4.  **Optimized Memory Layout**:
+    - Pre-allocated large point cloud vectors and used flattened data structures to ensure cache-friendly sequential memory access.
 
 ## Building the Engine
 
