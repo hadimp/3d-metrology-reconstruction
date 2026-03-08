@@ -60,8 +60,8 @@ def visualize_full(ply_path, out_html, target_points=100000):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate interactive 3D visualization from PLY point cloud.")
-    parser.add_argument("--input", type=str, default="results/full_model.ply", help="Path to input PLY file")
-    parser.add_argument("--output", type=str, default="results/360_reconstruction_interactive.html", help="Path to output HTML file")
+    parser.add_argument("--input", type=str, default="media/full_model.ply", help="Path to input PLY file")
+    parser.add_argument("--output", type=str, default="media/360_reconstruction_interactive.html", help="Path to output HTML file")
     parser.add_argument("--points", type=int, default=100000, help="Maximum points to visualize (for performance)")
     
     args = parser.parse_args()
